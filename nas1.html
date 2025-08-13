@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>إعدادية الناصرية - واجهة متطورة</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cairo&display=swap');
+    * {
+      margin: 0; padding: 0; box-sizing: border-box;
+    }
+    body {
+      font-family: 'Cairo', sans-serif;
+      background: linear-gradient(135deg, #142850, #27496d);
+      color: #fff;
+      direction: rtl;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    /* --- شريط التنقل --- */
+    header {
+      position: fixed;
+      top: 0; right: 0; left: 0;
+      background: transparent;
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: background-color 0.3s ease;
+      z-index: 1500;
+    }
+    header.scrolled {
+      background: #1b3a57;
+      box-shadow: 0 3px 15px rgba(0,0,0,0.7);
+      padding: 15px 40px;
+    }
+    .logo {
+      font-size: 32px;
+      font-weight: 900;
+      color: #f2c230;
+      letter-spacing: 1.4px;
+      user-select: none;
+      text-shadow: 0 0 10px #f2c230;
+    }
+    .menu-btn {
+      font-size: 32px;
+      color: #f2c230;
+      background: none;
+      border: none;
+      cursor: pointer;
+      user-select: none;
+      display: none;
+      z-index: 1600;
+    }
+    /* --- القائمة الجانبية --- */
+    nav.sidebar {
+      position: fixed;
+      top: 0; right: -320px;
+      width: 320px;
+      height: 100vh;
+      background: #1b3a57;
+      box-shadow: -5px 0 20px rgba(0, 0, 0, 0.7);
+      padding-top: 90px;
+      transition: right 0.35s ease;
+      border-radius: 10px 0 0 10px;
+      z-index: 1550;
+    }
+    nav.sidebar.active {
+      right: 0;
+    }
+    nav.sidebar ul {
+      list-style: none;
+    }
+    nav.sidebar ul li {
+      padding: 22px 30px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+      transition: background 0.3s ease;
+    }
+    nav.sidebar ul li:hover {
+      background: rgba(255, 194, 48, 0.15);
+    }
+    nav.sidebar ul li a {
+      color: #eaeaea;
+      font-size: 20px;
+      font-weight: 700;
+      text-decoration: none;
+      display: block;
+      transition: color 0.3s ease;
+    }
+    nav.sidebar ul li a:hover {
+      color: #f2c230;
+    }
+    .close-btn {
+      position: absolute;
+      top: 18px;
+      left: 20px;
+      font-size: 28px;
+      color: #f2c230;
+      cursor: pointer;
+      user-select: none;
+      transition: color 0.3s ease;
+    }
+    .close-btn:hover {
+      color: #fff176;
+    }
+    /* --- السلايدر --- */
+    .carousel {
+      position: relative;
+      width: 100%;
+      max-width: 1400px;
+      margin: 120px auto 60px;
+      height: 700px;
+      overflow: hidden;
+      border-radius: 20px;
+      box-shadow: 0 0 40px rgba(0,0,0,0.7);
+      background: #000;
+    }
+    .carousel img {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 20px;
+      opacity: 0;
+      transition: opacity 1.3s ease-in-out;
+      z-index: 0;
+      filter: drop-shadow(0 0 15px rgba(242, 194, 48, 0.8));
+    }
+    .carousel img.active {
+      opacity: 1;
+      z-index: 1;
+    }
+    /* نص السلايدر */
+    .carousel-text {
+      position: absolute;
+      bottom: 50px;
+      right: 50px;
+      max-width: 600px;
+      background: rgba(0, 0, 0, 0.5);
+      padding: 30px 40px;
+      border-radius: 15px;
+      color: #f2c230;
+      box-shadow: 0 0 25px rgba(242, 194, 48, 0.8);
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      font-weight: 600;
+      letter-spacing: 0.8px;
+      opacity: 1;
+      transition: opacity 1s ease;
+    }
+    .carousel-text h2 {
+      font-size: 3rem;
+      margin: 0;
+      font-weight: 900;
+      letter-spacing: 1.2px;
+    }
+    .carousel-text p {
+      font-size: 1.3rem;
+      line-height: 1.5;
+      margin: 0;
+      color: #ffe97f;
+    }
+    .carousel-text button {
+      align-self: flex-start;
+      background: #f2c230;
+      color: #182848;
+      border: none;
+      border-radius: 35px;
+      padding: 15px 45px;
+      font-size: 1.3rem;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 10px 30px rgba(242, 194, 48, 0.6);
+      transition: background 0.3s ease, transform 0.3s ease;
+    }
+    .carousel-text button:hover {
+      background: #e0b900;
+      transform: scale(1.1);
+      box-shadow: 0 12px 35px rgba(224, 185, 0, 0.8);
+    }
+    /* --- أقسام مميزة --- */
+    .features {
+      max-width: 1400px;
+      margin: 40px auto 80px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 30px;
+      padding: 0 20px;
+    }
+    .feature-card {
+      background: rgba(255, 255, 255, 0.07);
+      border-radius: 15px;
+      padding: 30px 25px;
+      box-shadow: 0 0 20px rgba(242, 194, 48, 0.3);
+      text-align: center;
+      cursor: pointer;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .feature-card:hover {
+      transform: translateY(-10px);
+      box-shadow: 0 0 35px rgba(242, 194, 48, 0.7);
+    }
+    .feature-card img {
+      max-width: 90px;
+      margin-bottom: 20px;
+      filter: drop-shadow(0 0 6px #f2c230);
+    }
+    .feature-card h3 {
+      font-size: 1.6rem;
+      font-weight: 800;
+      margin-bottom: 10px;
+      color: #f2c230;
+    }
+    .feature-card p {
+      font-size: 1rem;
+      font-weight: 500;
+      color: #ddd;
+      line-height: 1.4;
+    }
+    /* --- تذييل الصفحة --- */
+    footer {
+      background: #1b3a57;
+      padding: 30px 20px;
+      color: #ccc;
+      text-align: center;
+      font-size: 0.9rem;
+      border-top: 3px solid #f2c230;
+    }
+    footer a {
+      color: #f2c230;
+      text-decoration: none;
+      font-weight: 700;
+      margin: 0 8px;
+      transition: color 0.3s ease;
+    }
+    footer a:hover {
+      color: #fff176;
+    }
+    /* --- responsive --- */
+    @media (max-width: 900px) {
+      .carousel {
+        height: 450px;
+        border-radius: 15px;
+      }
+      .carousel-text {
+        max-width: 90%;
+        bottom: 20px;
+        right: 20px;
+        padding: 20px 25px;
+      }
+      .carousel-text h2 {
+        font-size: 2.4rem;
+      }
+      .carousel-text p {
+        font-size: 1.1rem;
+      }
+      .carousel-text button {
+        font-size: 1.1rem;
+        padding: 12px 30px;
+      }
+      nav.sidebar {
+        width: 280px;
+      }
+      .features {
+        grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+        padding: 0 15px;
+        gap: 20px;
+      }
+      .feature-card {
+        padding: 22px 20px;
+      }
+    }
+    @media (max-width: 480px) {
+      header {
+        padding: 15px 20px;
+      }
+      .menu-btn {
+        display: block;
+      }
+      .carousel-text h2 {
+        font-size: 1.8rem;
+      }
+      .carousel-text p {
+        font-size: 1rem;
+      }
+      .carousel-text button {
+        font-size: 1rem;
+        padding: 10px 25px;
+      }
+      .features {
+        grid-template-columns: 1fr;
+        padding: 0 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">إعدادية الناصرية</div>
+  <button class="menu-btn" aria-label="فتح القائمة">&#9776;</button>
+</header>
+
+<nav class="sidebar" aria-label="قائمة التنقل">
+  <span class="close-btn" aria-label="إغلاق القائمة">&times;</span>
+  <ul>
+    <li><a href="#about">نبذة عن الإعدادية</a></li>
+    <li><a href="#history">تاريخ الإعدادية</a></li>
+    <li><a href="#staff">الكادر التدريسي</a></li>
+    <li><a href="#directors">مدراء الإعدادية</a></li>
+    <li><a href="#students">طلبة الإعدادية</a></li>
+    <li><a href="#newspaper">جريدة الإعدادية</a></li>
+    <li><a href="#top-students">الطلاب المتفوقين</a></li>
+    <li><a href="#labs">المختبرات العلمية</a></li>
+    <li><a href="#playground">ملعب الإعدادية</a></li>
+    <li><a href="#honor-roll">قائمة الشرف</a></li>
+  </ul>
+</nav>
+
+<section class="carousel" aria-label="سلايدر صور إعدادية الناصرية">
+  <img src="https://i.ibb.co/cXMw0S8n/img-9-1754982104256.jpg" alt="صورة 1" class="active" />
+  <img src="https://i.ibb.co/PsT5k7zj/img-5-1754981964196.jpg" alt="صورة 2" />
+  <img src="https://i.ibb.co/MT5Yt4g/img-7-1754982096825.jpg" alt="صورة 3" />
+  <img src="https://i.ibb.co/S43P1VkN/img-2-1754981810450.jpg" alt="صورة 4" />
+  <img src="https://i.ibb.co/Ww2vSS4/img-3-1754981818249.jpg" alt="صورة 5" />
+  <div class="carousel-text" role="region" aria-label="معلومات ترحيبية">
+    <h2>مرحباً بكم في إعدادية الناصرية</h2>
+    <p>نفتخر بتاريخنا العريق وإنجازات طلبتنا وكادرنا التدريسي المتميز. نسعى لتقديم تعليم عصري ومتطور يواكب العصر.</p>
+    <button onclick="alert('سيتم تحديث الموقع قريباً!')">تعرف أكثر</button>
+  </div>
+</section>
+
+<section class="features" aria-label="أقسام الموقع">
+  <div class="feature-card" tabindex="0">
+    <img src="https://img.icons8.com/ios-filled/100/f2c230/info.png" alt="نبذة عن الإعدادية" />
+    <h3>نبذة عن الإعدادية</h3>
+    <p>تعرف على تاريخنا ورؤيتنا وأهدافنا في تقديم تعليم متميز.</p>
+  </div>
+  <div class="feature-card" tabindex="0">
+    <img src="https://img.icons8.com/ios-filled/100/f2c230/test-tube.png" alt="المختبرات العلمية" />
+    <h3>المختبرات العلمية</h3>
+    <p>أفضل المختبرات المزودة بأحدث المعدات العلمية والتقنيات التعليمية.</p>
+  </div>
+  <div class="feature-card" tabindex="0">
+    <img src="https://img.icons8.com/ios-filled/100/f2c230/football2.png" alt="ملعب الإعدادية" />
+    <h3>ملعب الإعدادية</h3>
+    <p>مرافق رياضية حديثة لدعم الأنشطة البدنية والفعاليات الطلابية.</p>
+  </div>
+  <div class="feature-card" tabindex="0">
+    <img src="https://img.icons8.com/ios-filled/100/f2c230/medal.png" alt="قائمة الشرف" />
+    <h3>قائمة الشرف</h3>
+    <p>نكرم الطلاب المتفوقين ونبرز إنجازاتهم ومساهماتهم.</p>
+  </div>
+  <!-- في قسم features، اضف خاصية onclick لبطاقة الحديقة: -->
+<div class="feature-card" tabindex="0" onclick="showGardenSection()">
+  <img src="https://img.icons8.com/ios-filled/100/f2c230/garden.png" alt="حديقة الإعدادية" />
+  <h3>حديقة الإعدادية</h3>
+  <p>مساحات خضراء جميلة توفر بيئة مريحة وملهمة للطلاب خلال أوقات الاستراحة.</p>
+</div>
+<div class="feature-card" tabindex="0" onclick="window.location.href='mmm.html'" style="cursor:pointer;">
+  <img src="https://img.icons8.com/ios-filled/100/f2c230/discount.png" alt="تخفيضات جامعة العين" />
+  <h3>تخفيضات جامعة العين</h3>
+  <p>اطلع على أحدث عروض التخفيضات ونسب الخصم للطلاب المقبولين.</p>
+</div>
+
+<!-- بعد قسم features أو قبل الفوتر أضف القسم التالي: -->
+<section id="garden-section" style="display:none; max-width: 1000px; margin: auto; padding: 30px 15px; color: #fff;">
+  <h2 style="color:#f2c230; text-align:center; margin-bottom:20px;">حديقة إعدادية الناصرية</h2>
+
+  <p style="font-size:1.1rem; background: rgba(255, 255, 255, 0.07); padding:20px; border-radius:10px; color:#ffe97f; text-align:center; margin-bottom:25px; border:1px solid rgba(255,255,255,0.2);">
+    "وَقُلِ ٱعْمَلُواْ فَسَيَرَى ٱللَّهُ عَمَلَكُمْ وَرَسُولُهُۥ وَٱلْمُؤْمِنُونَ ۖ وَسَتُرَدُّونَ إِلَىٰ عَٰلِمِ ٱلْغَيْبِ وَٱلشَّهَٰدَةِ فَيُنَبِّئُكُم بِمَا كُنتُمْ تَعْمَلُونَ"
+  </p>
+
+  <p>الإهتمام بالحدائق المدرسية يعبر عن الجمال و الذوق الرفيع للعاملين فيها. يسرُّنا أن ننشر لكم جمال الحديقة المدرسية لإعدادية الناصرية للبنين...</p>
+  <p>نرافق لكم مجموعة من صورها قبل وبعد الإدامة والتنظيم ...</p>
+  <p>وتتقدم إدارة الإعدادية بالشكر الجزيل والتقدير ...</p>
+
+  <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:15px; margin-top:20px;">
+    <img src="https://www2.0zz0.com/2025/08/12/09/385835440.jpg" alt="حديقة 1" style="width:100%; height:220px; object-fit:cover; border-radius:10px; box-shadow:0 0 15px rgba(242,194,48,0.5);">
+    <img src="https://www2.0zz0.com/2025/08/12/09/433581628.jpg" alt="حديقة 2" style="width:100%; height:220px; object-fit:cover; border-radius:10px; box-shadow:0 0 15px rgba(242,194,48,0.5);">
+    <img src="https://www2.0zz0.com/2025/08/12/09/922515225.jpg" alt="حديقة 3" style="width:100%; height:220px; object-fit:cover; border-radius:10px; box-shadow:0 0 15px rgba(242,194,48,0.5);">
+    <img src="https://www2.0zz0.com/2025/08/12/09/494574792.jpg" alt="حديقة 4" style="width:100%; height:220px; object-fit:cover; border-radius:10px; box-shadow:0 0 15px rgba(242,194,48,0.5);">
+    <img src="https://www2.0zz0.com/2025/08/12/09/382349682.jpg" alt="حديقة 5" style="width:100%; height:220px; object-fit:cover; border-radius:10px; box-shadow:0 0 15px rgba(242,194,48,0.5);">
+    <img src="https://www2.0zz0.com/2025/08/12/09/878554066.jpg" alt="حديقة 6" style="width:100%; height:220px; object-fit:cover; border-radius:10px; box-shadow:0 0 15px rgba(242,194,48,0.5);">
+    <img src="https://www2.0zz0.com/2025/08/12/09/519612017.jpg" alt="حديقة 7" style="width:100%; height:220px; object-fit:cover; border-radius:10px; box-shadow:0 0 15px rgba(242,194,48,0.5);">
+  </div>
+</section>
+
+<script>
+  function showGardenSection() {
+    const section = document.getElementById('garden-section');
+    if (section.style.display === 'none' || section.style.display === '') {
+      section.style.display = 'block';
+      section.scrollIntoView({behavior: 'smooth'});
+    } else {
+      // لو حبيت تخفيه لما تضغط مرة ثانية، تحذف هذا الجزء أو تخليه حسب رغبتك
+      section.style.display = 'none';
+    }
+  }
+</script>
+</section>
+
+<footer>
+  <p>© 2025 إعدادية الناصرية - جميع الحقوق محفوظة.</p>
+  <p>
+المبرمج  السيد حسن رباح : للتواصل 
+    <a href="https://www.instagram.com/ve87r?igsh=Y2ZyczlxMmQ3NW94">انستغرام</a> |
+  </p>
+  <p>
+    تابعنا على:
+    <a href="#" aria-label="فيسبوك">فيسبوك</a> |
+    <a href="#" aria-label="تليجرام">تويتر</a> |
+    <a href="#" aria-label="إنستغرام">إنستغرام</a>
+  </p>
+</footer>
+
+<script>
+  // تغير خلفية الهيدر عند التمرير
+  const header = document.querySelector('header');
+  window.addEventListener('scroll', () => {
+    if(window.scrollY > 50) {
+      header.classList.add('scrolled');
+    } else {
+      header.classList.remove('scrolled');
+    }
+  });
+
+  // القائمة الجانبية
+  const menuBtn = document.querySelector('.menu-btn');
+  const sidebar = document.querySelector('.sidebar');
+  const closeBtn = document.querySelector('.close-btn');
+
+  menuBtn.addEventListener('click', () => sidebar.classList.add('active'));
+  closeBtn.addEventListener('click', () => sidebar.classList.remove('active'));
+
+  document.addEventListener('click', e => {
+    if(!sidebar.contains(e.target) && !menuBtn.contains(e.target)) {
+      sidebar.classList.remove('active');
+    }
+  });
+
+  // سلايدر الصور مع تأثير fade وتغيير نص مع كل صورة
+  const images = document.querySelectorAll('.carousel img');
+  const carouselText = document.querySelector('.carousel-text');
+  let current = 0;
+
+  // نصوص منفصلة لكل صورة
+  const texts = [
+    {
+      title: "مرحباً بكم في إعدادية الناصرية",
+      desc: "نفتخر بتاريخنا العريق وإنجازات طلبتنا وكادرنا التدريسي المتميز. نسعى لتقديم تعليم عصري ومتطور يواكب العصر."
+    },
+    {
+      title: "المختبرات العلمية المتطورة",
+      desc: "نوفر مختبرات مجهزة بأحدث الأجهزة العلمية لدعم البحث والتعليم."
+    },
+    {
+      title: "ملعب الإعدادية الحديث",
+      desc: "مرافق رياضية متميزة لتشجيع النشاط البدني والرياضات الجماعية."
+    },
+    {
+      title: "الكادر التدريسي المتميز",
+      desc: "معلمون خبراء يلتزمون بتقديم أفضل تجربة تعليمية للطلاب."
+    },
+    {
+      title: "جريدة الإعدادية",
+      desc: "ابقَ على اطلاع بآخر الأخبار والفعاليات من خلال جريدتنا الإلكترونية."
+    }
+  ];
+
+  function updateCarousel() {
+    images.forEach(img => img.classList.remove('active'));
+    images[current].classList.add('active');
+
+    // تحديث نص السلايدر مع تأثير fade
+    carouselText.style.opacity = 0;
+    setTimeout(() => {
+      carouselText.querySelector('h2').textContent = texts[current].title;
+      carouselText.querySelector('p').textContent = texts[current].desc;
+      carouselText.style.opacity = 1;
+    }, 600);
+  }
+
+  setInterval(() => {
+    current = (current + 1) % images.length;
+    updateCarousel();
+  }, 2500);
+
+  updateCarousel();
+</script>
+
+</body>
+</html>
